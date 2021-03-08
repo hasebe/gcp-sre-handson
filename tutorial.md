@@ -535,11 +535,13 @@ Cloud Operations を使い、マイクロサービスアプリケーションの
 ![Home Page](https://raw.githubusercontent.com/GoogleCloudPlatform/microservices-demo/master/docs/img/online-boutique-frontend-1.png)
 ![Checkout ページ](https://raw.githubusercontent.com/GoogleCloudPlatform/microservices-demo/master/docs/img/online-boutique-frontend-2.png)
 
-### アプリケーション構成
+## アプリケーション構成
 
 サンプルアプリケーションはマイクロサービス アーキテクチャで構成されており、それぞれのサービスは下記のような構成となっています。
 
 ![アーキテクチャ図](https://raw.githubusercontent.com/GoogleCloudPlatform/microservices-demo/master/docs/img/architecture-diagram.png)
+
+詳細は[こちら](https://github.com/GoogleCloudPlatform/microservices-demo)をご覧ください
 
 ## Anthos Service Mesh の導入
 
