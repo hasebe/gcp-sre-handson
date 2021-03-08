@@ -335,11 +335,10 @@ sed -i".org" -e "s/FIXME/{{project-id}}/g" gke-config/deployment.yaml
 kubectl apply -f gke-config/
 ```
 
-このコマンドにより、Kubernetes の 3 リソースが作成され、インターネットからアクセスできるようになります。
+このコマンドにより、Kubernetes の 2 リソースが作成され、インターネットからアクセスできるようになります。
 
 - [Deployment](https://cloud.google.com/kubernetes-engine/docs/concepts/deployment)
 - [Service](https://kubernetes.io/ja/docs/concepts/services-networking/service/)
-- [Ingress](https://kubernetes.io/ja/docs/concepts/services-networking/ingress/)
 
 **GUI**: [Deployment](https://console.cloud.google.com/kubernetes/workload?project={{project-id}}), [Service/Ingress](https://console.cloud.google.com/kubernetes/discovery?project={{project-id}})
 
