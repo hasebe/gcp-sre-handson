@@ -1,0 +1,52 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: loadgenerator
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: loadgenerator
+      mode: master
+  template:
+    metadata:
+      labels:
+        app: loadgenerator
+        mode: master
+    spec:
+      containers:
+        - name: locust-main
+          image: gcr.io/stackdriver-sandbox-230822/sandbox/loadgenerator/gke:latest
+          imagePullPolicy: Always
+          env:
+            - name: LOCUST_MODE
+              value: standalone
+            - name: LOCUST_TASK
+              value: basic_locustfile.py
+            - name: TARGET_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: address-config
+                  key: FRONTEND_ADDR
+          ports:
+            - name: loc-master-web
+              containerPort: 8089
+              protocol: TCP
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: loadgenerator
+  labels:
+    app: loadgenerator
+spec:
+  ports:
+    - port: 80
+      targetPort: loc-master-web
+      protocol: TCP
+      name: loc-master-web
+  selector:
+    app: loadgenerator
+    mode: master
+  type: LoadBalancer
