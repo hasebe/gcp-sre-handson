@@ -4,4 +4,6 @@
 contains some scripts that are used to teach GCP beginners how
 to use GCP's SRE/DevOps products in more efficient way.
 
-see [tutorial.md](tutorial.md) for more details
+Click the open in Cloud Shell button below to run a sample tutorial yourself.
+
+[![Open this project in Cloud Shell](http://gstatic.com/cloudssh/images/open-btn.png)](https://console.cloud.google.com/cloudshell/open?git_repo=https://github.com/hasebe/gcp-sre-handson.git&page=editor&tutorial=tutorial.md)
