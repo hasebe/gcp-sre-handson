@@ -7,44 +7,6 @@
 <walkthrough-project-setup>
 </walkthrough-project-setup>
 
-## ハンズオンの内容
-
-下記の内容をハンズオン形式で学習します。
-
-- 環境準備：10 分
-
-  - gcloud コマンドラインツール設定
-  - GCP 機能（API）有効化設定
-  - サービスアカウント設定
-
-- [Kubernetes Engine（GKE）](https://cloud.google.com/kubernetes-engine/) を用いたアプリケーションの公開：40 分
-
-  - サンプルアプリケーションのコンテナ化
-  - コンテナの [Artifact Registry](https://cloud.google.com/artifact-registry) への登録
-  - GKE クラスタの作成
-  - コンテナの GKE へのデプロイ、外部公開
-
-- [Cloud Build](https://cloud.google.com/cloud-build/) によるビルド、デプロイの自動化：30 分
-
-  - [Cloud Source Repositories](https://cloud.google.com/source-repositories/) へのリポジトリの作成
-  - [Cloud Build トリガー](https://cloud.google.com/cloud-build/docs/running-builds/automate-builds) の作成
-  - Git クライアントの設定
-  - ソースコードの Push をトリガーにした、アプリケーションのビルド、GKE へのデプロイ
-
-- [Cloud Operations](https://cloud.google.com/products/operations) を活用したマイクロサービスの運用、SRE の体験：50 分
-
-  - [Anthos Service Mesh](https://cloud.google.com/anthos/service-mesh)の導入
-  - サンプルアプリケーションのデプロイ
-  - 稼働時間チェック、アラートの確認
-  - The Four Golden Signal をベースにしたダッシュボードの作成
-  - （チャレンジ問題）高負荷環境でのトラブルシューティング
-
-- クリーンアップ：10 分
-
-  - プロジェクトごと削除
-
-- Q & A：20 分
-
 ## 環境準備
 
 <walkthrough-tutorial-duration duration=10></walkthrough-tutorial-duration>
@@ -104,26 +66,6 @@ gcloud services enable cloudbuild.googleapis.com sourcerepo.googleapis.com cloud
 
 <walkthrough-footnote>必要な機能が使えるようになりました。次にコマンドラインツールに関する残りの設定を行います。</walkthrough-footnote>
 
-## gcloud コマンドラインツール設定 - リージョン、ゾーン
-
-### デフォルトリージョンを設定
-
-コンピュートリソースを作成するデフォルトのリージョンとして、東京リージョン（asia-northeast1）を指定します。
-
-```bash
-gcloud config set compute/region asia-northeast1
-```
-
-### デフォルトゾーンを設定
-
-コンピュートリソースを作成するデフォルトのゾーンとして、東京リージョン内の 1 ゾーン（asia-northeast1-c）を指定します。
-
-```bash
-gcloud config set compute/zone asia-northeast1-c
-```
-
-<walkthrough-footnote>必要な機能が使えるようになりました。次にサービスアカウントの設定を行います。</walkthrough-footnote>
-
 ## サービスアカウントの作成、権限設定
 
 アプリケーションから他の GCP サービスを利用する場合、個々のエンドユーザーではなく、専用の Google アカウント（サービスアカウント）を作ることを強く推奨しています。
@@ -174,46 +116,6 @@ gcloud projects add-iam-policy-binding {{project-id}}  --member serviceAccount:s
 - GKE クラスタの作成、設定
 - コンテナの GKE へのデプロイ、外部公開
 
-## サンプルアプリケーションのコンテナ化
-
-### コンテナを作成する
-
-Go 言語で作成されたサンプル Web アプリケーションをコンテナ化します。
-ここで作成したコンテナはローカルディスクに保存されます。
-
-```bash
-docker build -t asia-northeast1-docker.pkg.dev/{{project-id}}/gcp-getting-started-lab-jp/sre-app:v1 .
-```
-
-**ヒント**: `docker build` コマンドを叩くと、Dockerfile が読み込まれ、そこに記載されている手順通りにコンテナが作成されます。
-
-### Cloud Shell 上でコンテナを起動する
-
-上の手順で作成したコンテナを Cloud Shell 上で起動します。
-
-```bash
-docker run -d -p 8080:8080 \
---name sre-app \
-asia-northeast1-docker.pkg.dev/{{project-id}}/gcp-getting-started-lab-jp/sre-app:v1
-```
-
-**ヒント**: Cloud Shell 環境の 8080 ポートを、コンテナの 8080 ポートに紐付け、バックグラウンドで起動します。
-
-<walkthrough-footnote>アプリケーションをコンテナ化し、起動することができました。次に実際にアプリケーションにアクセスしてみます。</walkthrough-footnote>
-
-## 作成したコンテナの動作確認
-
-### CloudShell の機能を利用し、起動したアプリケーションにアクセスする
-
-画面右上にあるアイコン <walkthrough-web-preview-icon></walkthrough-web-preview-icon> をクリックし、"プレビューのポート: 8080"を選択します。
-これによりブラウザで新しいタブが開き、Cloud Shell 上で起動しているコンテナにアクセスできます。
-
-正しくアプリケーションにアクセスできると、下記のような画面が表示されます。
-
-![BrowserAccessToFrontend](https://storage.googleapis.com/jp-devops-handson/frontend_normal.png)
-
-<walkthrough-footnote>ローカル環境（Cloud Shell 内）で動いているコンテナにアクセスできました。次に GKE で動かすための準備を進めます。</walkthrough-footnote>
-
 ## コンテナのレジストリへの登録
 
 先程作成したコンテナはローカルに保存されているため、他の場所から参照ができません。
@@ -256,7 +158,8 @@ gcloud container clusters create "sre-cluster"  \
 --release-channel regular \
 --num-nodes 4 \
 --machine-type e2-custom-4-8192 \
---workload-pool {{project-id}}.svc.id.goog
+--workload-pool {{project-id}}.svc.id.goog \
+--zone asia-northeast1-b
 ```
 
 **参考**: クラスタの作成が完了するまでに、最大 10 分程度時間がかかることがあります。
@@ -274,7 +177,7 @@ Kubernetes には専用の [CLI ツール（kubectl）](https://kubernetes.io/do
 認証情報を取得し、作成したクラスタを操作できるようにします。
 
 ```bash
-gcloud container clusters get-credentials sre-cluster
+gcloud container clusters get-credentials sre-cluster --zone asia-northeast1-b
 ```
 
 <walkthrough-footnote>これで kubectl コマンドから作成したクラスタを操作できるようになりました。次に作成済みのコンテナをクラスタにデプロイします。</walkthrough-footnote>
@@ -351,10 +254,10 @@ kubectl apply -f gke-config/
 デプロイしたコンテナへのアクセスを待ち受ける Service の IP アドレスを確認します。
 
 ```bash
-kubectl get service sre-app-loadbalancer -n sre-ns -w
+kubectl get service sre-app-loadbalancer -n sre-ns
 ```
 
-このコマンドは対象のリソース状態を監視（watch）します。グローバル IP アドレスが付与されたら Ctrl + C を押してキャンセルしてください。
+`EXTERNAL-IP` の列に値が入るまで、コマンドを何度か実行してください
 
 **ヒント**: デプロイしたコンテナ自体はグローバルからアクセス可能な IP アドレスを持ちません。今回のように、外部からのアクセスを受け付けるリソース（Service）を作成し、そこを通してコンテナにアクセスする必要があります。
 
@@ -380,6 +283,7 @@ Cloud Build を利用し今まで手動で行っていたアプリケーショ�
 - [Cloud Build トリガー](https://cloud.google.com/cloud-build/docs/running-builds/automate-builds) の作成
 - Git クライアントの設定
 - ソースコードの Push をトリガーにした、アプリケーションのビルド、GKE へのデプロイ
+- 作成したパイプラインを使いアプリケーションを修正
 
 ## Cloud Build サービスアカウントへの権限追加
 
@@ -433,19 +337,12 @@ git config --global credential.https://source.developers.google.com.helper gclou
 
 **ヒント**: git コマンドと gcloud で利用している IAM アカウントを紐付けるための設定です。
 
-### 利用者設定
+### 利用者、メールアドレス設定
 
 USERNAME を自身のユーザ名に置き換えて実行し、利用者を設定します。
 
 ```bash
 git config --global user.name "USERNAME"
-```
-
-### メールアドレス設定
-
-USERNAME@EXAMPLE.com を自身のメールアドレスに置き換えて実行し、利用者のメールアドレスを設定します。
-
-```bash
 git config --global user.email "USERNAME@EXAMPLE.com"
 ```
 
@@ -468,7 +365,7 @@ git remote add google https://source.developers.google.com/p/{{project-id}}/r/sr
 git push コマンドを使い、CSR に資材を転送（プッシュ）します。
 
 ```bash
-git push google master
+git push google main
 ```
 
 **GUI**: [Source Repository](https://source.cloud.google.com/{{project-id}}/sre-repo) から資材がプッシュされたことを確認できます。
@@ -501,6 +398,30 @@ Cloud Build 実行前は Image が `asia-northeast1-docker.pkg.dev/{{project-id}
 実際は、COMMITHASH には Git のコミットハッシュ値が入ります。
 
 <walkthrough-footnote>資材を更新、プッシュをトリガーとしたアプリケーションのビルド、コンテナ化、GKE へのデプロイを行うパイプラインが完成しました。</walkthrough-footnote>
+
+## チャレンジ問題：処理に時間がかかっているページの改善
+
+/bench の API はレスポンスに時間がかかっていることを確認しました。それを修正し、Kubernetes にデプロイしてみましょう。
+
+### ソースコードの修正
+
+main.go がアプリケーションのソースコードです。処理に時間がかかっているいくつかの行を削除し、保存します。
+
+**ヒント**: Stress とコメントがついています。
+
+### Git に修正をコミット、CSR にプッシュ
+
+今行った修正を git コマンドを使い、コミット、CSR にプッシュします。
+
+**ヒント**: 通常 `git add`、`git commit`、`git push` の 3 つのコマンドを利用します。
+
+### Cloud Build の自動実行を確認
+
+[Cloud Build の履歴](https://console.cloud.google.com/cloud-build/builds?project={{project-id}}) にアクセスし、git push コマンドを実行したタイミングでビルドが実行されていることを確認します。
+
+### アプリケーションにアクセスし、すぐレスポンスがかえることを確認
+
+bench のタブから `Start!` をクリックし、カウントアップが速くなっていることを確認します。
 
 ## 既存リソースの削除
 
@@ -550,11 +471,11 @@ Cloud Operations を使い、マイクロサービスアプリケーションの
 ### Anthos Service Mesh のインストール
 
 ```bash
-curl https://storage.googleapis.com/csm-artifacts/asm/install_asm_1.8 > install_asm && chmod a+x install_asm
+curl https://storage.googleapis.com/csm-artifacts/asm/install_asm_1.9 > install_asm && chmod a+x install_asm
 mkdir asm_output && ./install_asm \
   --project_id {{project-id}} \
   --cluster_name sre-cluster \
-  --cluster_location asia-northeast1-c \
+  --cluster_location asia-northeast1-b \
   --mode install \
   --output_dir asm_output \
   --enable_all
@@ -567,7 +488,7 @@ mkdir asm_output && ./install_asm \
 サービスメッシュの対象とする名前空間にサイドカーを入れるための設定を行います。
 
 ```bash
-kubectl label namespace sre-ns istio-injection- istio.io/rev=asm-183-2 --overwrite
+kubectl label namespace sre-ns istio-injection- istio.io/rev=asm-192-1 --overwrite
 ```
 
 ## サンプルアプリケーション、Load Generator のデプロイ
@@ -585,7 +506,7 @@ export INGRESSGW_ADDR=$(kubectl get svc istio-ingressgateway -n istio-system -oj
 kubectl create configmap address-config --from-literal=FRONTEND_ADDR=http://$INGRESSGW_ADDR
 ```
 
-### Load generator のデプロイ
+### Load Generator のデプロイ
 
 ```bash
 kubectl apply -f k8s-manifests/loadgen.yaml
@@ -601,8 +522,6 @@ kubectl apply -f k8s-manifests/loadgen.yaml
 echo http://$INGRESSGW_ADDR
 ```
 
-前半のハンズオンで実施した画面が表示された場合は、ブラウザをリロードしてください。
-
 ### Load Generator
 
 ```bash
@@ -616,9 +535,9 @@ echo http://$LOADGEN_ADDR
 
 ## 稼働時間チェック
 
-## 稼働時間チェックの設定
+### 稼働時間チェックの設定
 
-先程稼働させたサンプルアプリケーション（トップページ）の死活監視設定を行います。ここでは、HTTP でアクセスをし、200 以外が返ってきた場合、自分のメールアドレスにアラートを送る設定を行います。
+先程稼働させたサンプルアプリケーション（トップページ）の死活監視設定を行います。ここでは、HTTP でアクセスをし、HTTP のステータスコードで `200` 以外が返ってきた場合、自分のメールアドレスにアラートを送る設定を行います。
 
 [こちら](https://console.cloud.google.com/monitoring/uptime?project={{project-id}})にアクセスし、`稼働時間チェックの作成` をクリックします。
 
@@ -628,7 +547,7 @@ echo http://$LOADGEN_ADDR
 1. `Duration` を `most recent value` に変更します。`Notification Channels`、`通知チャンネルを管理` の順にクリックします。
 1. 新しく開いた画面で Email の `ADD NEW` をクリックし、自分のメールアドレス、表示名を入力し、`SAVE` をクリックします。その後、こちらのタブは閉じます。
 1. 元の画面に戻り、`通知チャンネルを管理` の左のリフレッシュボタンを押し、先程追加した Email 項目にチェックを入れ、`OK` を押します。
-1. `TEST` をクリックし、200 が返ってくることを確認した後に、`CREATE` をクリックします。
+1. `TEST` をクリックし、HTTP のステータスコード `200` が返ってくることを確認した後に、`CREATE` をクリックします。
 
 ## 稼働時間チェック正常動作確認
 
@@ -668,10 +587,10 @@ Google が提唱する SRE の考え方では、監視項目はサービス目�
 
 今回はその中で提唱されている、どのサービスでも監視とされる[The Four Golden Signals](https://sre.google/sre-book/monitoring-distributed-systems/)（Saturation は除きます）についてダッシュボードを作成します。
 
-- Latency
-- Errors
-- Traffic
-- Saturation
+- Latency（レイテンシ）
+- Errors（エラー）
+- Traffic（トラフィック）
+- Saturation（リソース負荷）
 
 [ダッシュボード](https://console.cloud.google.com/monitoring/dashboards?project={{project-id}}) に移動し、`CREATE DASHBOARD` をクリックして作成準備をしておきます。ダッシュボードの名前は `Sample App Overview` としておきます。
 
