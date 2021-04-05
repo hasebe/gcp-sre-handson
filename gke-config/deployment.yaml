@@ -15,25 +15,25 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: devops-handson-deployment
-  namespace: devops-handson-ns
+  name: sre-app-deployment
+  namespace: sre-ns
 spec:
   selector:
     matchLabels:
-      app: devops-handson
+      app: sre-app
   replicas: 2
   template:
     metadata:
       labels:
-        app: devops-handson
+        app: sre-app
     spec:
-      serviceAccountName: devops-handson-ksa
+      serviceAccountName: sre-ksa
       volumes:
         - name: google-cloud-key
           secret:
             secretName: dohandson-key
       containers:
-        - name: myapp
-          image: asia-northeast1-docker.pkg.dev/FIXME/gcp-getting-started-lab-jp/devops-handson:v1
+        - name: sre-app
+          image: asia-northeast1-docker.pkg.dev/FIXME/gcp-getting-started-lab-jp/sre-app:v1
           ports:
             - containerPort: 8080

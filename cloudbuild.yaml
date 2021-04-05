@@ -4,24 +4,24 @@ steps:
       [
         "build",
         "-t",
-        "asia-northeast1-docker.pkg.dev/$PROJECT_ID/gcp-getting-started-lab-jp/devops-handson:$SHORT_SHA",
+        "asia-northeast1-docker.pkg.dev/$PROJECT_ID/gcp-getting-started-lab-jp/sre-app:$SHORT_SHA",
         ".",
       ]
-    dir: "devops/"
+    dir: "./"
   - name: "gcr.io/cloud-builders/docker"
     args:
       [
         "push",
-        "asia-northeast1-docker.pkg.dev/$PROJECT_ID/gcp-getting-started-lab-jp/devops-handson:$SHORT_SHA",
+        "asia-northeast1-docker.pkg.dev/$PROJECT_ID/gcp-getting-started-lab-jp/sre-app:$SHORT_SHA",
       ]
   - name: "gcr.io/cloud-builders/kubectl"
     args:
       - "set"
       - "image"
-      - "deployment/devops-handson-deployment"
-      - "myapp=asia-northeast1-docker.pkg.dev/$PROJECT_ID/gcp-getting-started-lab-jp/devops-handson:$SHORT_SHA"
+      - "deployment/sre-app-deployment"
+      - "sre-app=asia-northeast1-docker.pkg.dev/$PROJECT_ID/gcp-getting-started-lab-jp/sre-app:$SHORT_SHA"
       - "-n"
-      - "devops-handson-ns"
+      - "sre-ns"
     env:
-      - "CLOUDSDK_COMPUTE_ZONE=asia-northeast1-c"
-      - "CLOUDSDK_CONTAINER_CLUSTER=k8s-devops-handson"
+      - "CLOUDSDK_COMPUTE_ZONE=asia-northeast1-b"
+      - "CLOUDSDK_CONTAINER_CLUSTER=sre-cluster"
