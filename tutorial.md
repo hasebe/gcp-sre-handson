@@ -116,6 +116,21 @@ gcloud projects add-iam-policy-binding {{project-id}}  --member serviceAccount:s
 - GKE クラスタの作成、設定
 - コンテナの GKE へのデプロイ、外部公開
 
+## サンプルアプリケーションのコンテナ化
+
+### コンテナを作成する
+
+Go 言語で作成されたサンプル Web アプリケーションをコンテナ化します。
+ここで作成したコンテナはローカルディスクに保存されます。
+
+```bash
+docker build -t asia-northeast1-docker.pkg.dev/{{project-id}}/gcp-getting-started-lab-jp/sre-app:v1 .
+```
+
+**ヒント**: `docker build` コマンドを叩くと、Dockerfile が読み込まれ、そこに記載されている手順通りにコンテナが作成されます。
+
+<walkthrough-footnote>アプリケーションをコンテナ化し、起動することができました。次に実際にアプリケーションにアクセスしてみます。</walkthrough-footnote>
+
 ## コンテナのレジストリへの登録
 
 先程作成したコンテナはローカルに保存されているため、他の場所から参照ができません。
@@ -528,6 +543,8 @@ echo http://$INGRESSGW_ADDR
 export LOADGEN_ADDR=$(kubectl get svc loadgenerator -n default -ojsonpath='{.status.loadBalancer.ingress[0].ip}')
 echo http://$LOADGEN_ADDR
 ```
+
+IP アドレスが表示されない場合は、表示されるまでコマンドを繰り返し実行してください。
 
 ## Cloud Monitoring の有効化
 
